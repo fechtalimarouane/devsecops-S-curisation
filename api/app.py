@@ -5,6 +5,7 @@ import subprocess
 import hashlib
 import os
 import logging
+import bcrypt
 
 
 app = Flask(__name__)
@@ -61,8 +62,9 @@ def deserialize():
 def encrypt():
     text = request.json.get("text", "")
     # Chiffrement faible
-    hashed = hashlib.md5(text.encode()).hexdigest()
-    return {"hash": hashed}
+    text_bytes = text.encode()  # convert to bytes
+    hashed = bcrypt.hashpw(text_bytes, bcrypt.gensalt())
+    return {"hash": hashed.decode()}
 
 
 @app.route("/file", methods=["POST"])

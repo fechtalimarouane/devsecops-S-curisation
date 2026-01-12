@@ -1,3 +1,5 @@
+from email.mime import text
+import shlex
 from flask import Flask, request
 import sqlite3
 import pickle
@@ -36,7 +38,8 @@ def auth():
 @app.route("/exec", methods=["POST"])
 def exec_cmd():
     cmd = request.json.get("cmd")
-    output = subprocess.check_output(cmd, shell=True)
+    output = subprocess.check_output(shlex.split(cmd))
+
     return {"output": output.decode()}
 
 
@@ -50,7 +53,7 @@ def deserialize():
 @app.route("/encrypt", methods=["POST"])
 def encrypt():
     text = request.json.get("text", "")
-    hashed = hashlib.md5(text.encode()).hexdigest()
+    hashed = hashlib.md5(text.encode(), usedforsecurity=False).hexdigest()
     return {"hash": hashed}
 
 
@@ -78,4 +81,5 @@ def log_data():
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    app.run(host="0.0.0.0", port=5000, debug=False)
+
